@@ -1010,7 +1010,9 @@ bool DcGoAction::Execute(Event event)
     std::string const param = event.getParam();
     if (param.empty())
     {
-        DcRefuse(botAI, bot, "Usage: .dc go <boss name or entry>");
+        // By leewheel 2026-10-16 中英双语提示（boss 名单来自路线数据为英文，
+        //   中文名匹配不到——用 entry 数字或英文名均可）。
+        DcRefuse(botAI, bot, "Usage: .dc go <boss name or entry> / 用法：.清副本 去打 <首领名或entry数字>");
         return false;
     }
 
@@ -1330,7 +1332,16 @@ bool DcPullAction::Execute(Event event)
     // Tri-state preference: 0 Off, 1 On, 2 Dynamic (see DungeonClearPullSetting-
     // Value). The addon sends an explicit "off"/"on"/"dynamic"; a bare toggle
     // cycles Off -> On -> Dynamic -> Off for the chat keyword / .dc pull case.
-    std::string const param = event.getParam();
+    // By leewheel 2026-10-16 中英双语：中文子参数归一化为英文等价词。
+    //   密语「清副本 拉怪 开启/关闭/动态」经 ChatHelper 别名命中 "dc pull" 后，
+    //   子参数原样传到这里；`.dc pull 开启` 的 .dc 命令表中文子命令同理。
+    std::string param = event.getParam();
+    if (param == "关闭")
+        param = "off";
+    else if (param == "开启")
+        param = "on";
+    else if (param == "动态" || param == "动")
+        param = "dynamic";
     uint32 const current = AI_VALUE(uint32, DcKey::PullSetting);
     uint32 setting;
     if (param == "off")

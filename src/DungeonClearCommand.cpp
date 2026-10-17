@@ -356,23 +356,41 @@ public:
         };
         static ChatCommandTable dcTable =
         {
+            // By leewheel 2026-10-16 中英双语：每个子命令加中文别名（同 handler、
+            //   同权限）。`.dc` 与 `.清副本` 根命令均可（见下方 root），中英共存。
+            //   注：AC 的 ChatCommandBuilder handler 条目必须显式给 security+console。
             { "on",     HandleOn,     SEC_PLAYER, Console::No },
+            { "开启",   HandleOn,     SEC_PLAYER, Console::No },
+            { "开始",   HandleOn,     SEC_PLAYER, Console::No },
             { "off",    HandleOff,    SEC_PLAYER, Console::No },
+            { "关闭",   HandleOff,    SEC_PLAYER, Console::No },
+            { "停止",   HandleOff,    SEC_PLAYER, Console::No },
             { "skip",   HandleSkip,   SEC_PLAYER, Console::No },
+            { "跳过",   HandleSkip,   SEC_PLAYER, Console::No },
             { "pause",  HandlePause,  SEC_PLAYER, Console::No },
+            { "暂停",   HandlePause,  SEC_PLAYER, Console::No },
+            { "继续",   HandlePause,  SEC_PLAYER, Console::No },   // pause 是开关：暂停中再说一次即继续
             { "pull",   HandlePull,   SEC_PLAYER, Console::No },
+            { "拉怪",   HandlePull,   SEC_PLAYER, Console::No },   // 子参数 开启/关闭/动态 由 DcPullAction 归一化
             { "status", HandleStatus, SEC_PLAYER, Console::No },
+            { "状态",   HandleStatus, SEC_PLAYER, Console::No },
             { "bosses", HandleBosses, SEC_PLAYER, Console::No },
+            { "首领",   HandleBosses, SEC_PLAYER, Console::No },
             { "go",     HandleGo,     SEC_PLAYER, Console::No },
+            { "去打",   HandleGo,     SEC_PLAYER, Console::No },   // 用法：.dc go <boss名或entry数字>
             { "wing",   HandleWing,   SEC_PLAYER, Console::No },
+            { "分翼",   HandleWing,   SEC_PLAYER, Console::No },
             { "config", HandleConfig, SEC_PLAYER, Console::No },
+            { "配置",   HandleConfig, SEC_PLAYER, Console::No },
             { "spectate", HandleSpectate, SEC_PLAYER, Console::No },
+            { "观战",   HandleSpectate, SEC_PLAYER, Console::No },
             { "test",   dcTestTable },
             { "lab",    dcLabTable },
             { "dungeonqueuefill", dcQueueFillTable },
             { "bgqueuefill", dcBgQueueFillTable },
         };
-        static ChatCommandTable root = { { "dc", dcTable } };
+        // By leewheel 2026-10-16 中英双语根命令：.dc 与 .清副本 等效。
+        static ChatCommandTable root = { { "dc", dcTable }, { "清副本", dcTable } };
         return root;
     }
 

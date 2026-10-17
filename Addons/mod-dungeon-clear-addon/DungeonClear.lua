@@ -83,18 +83,19 @@ local pullSetting = 2
 -- while pullSetting == 2.
 local pullDecision = 0
 -- Display metadata per pull state: segment label, command keyword, accent color.
+-- 注意：seg 是界面显示文本（可汉化），cmd 是发给服务器的协议关键字（禁止改动）
 local PullStates = {
-    [0] = { seg = "Leeroy",   cmd = "off",     color = {0.55, 0.55, 0.55} },
-    [1] = { seg = "Advanced", cmd = "on",      color = {0.20, 0.85, 0.30} },
-    [2] = { seg = "Dynamic",  cmd = "dynamic", color = {0.30, 0.70, 1.00} },
+    [0] = { seg = "莽冲",   cmd = "off",     color = {0.55, 0.55, 0.55} },
+    [1] = { seg = "高级",   cmd = "on",      color = {0.20, 0.85, 0.30} },
+    [2] = { seg = "动态",   cmd = "dynamic", color = {0.30, 0.70, 1.00} },
 }
 -- Per Dynamic-verdict display: full + tiny labels and an accent. Leeroy = amber
 -- (charge in), Advanced = blue (careful pull), Waiting = yellow (holding for a
 -- patrol to pass before committing).
 local DynVerdicts = {
-    [1] = { full = "Leeroy",   tiny = "L", color = {1.00, 0.65, 0.10} },
-    [2] = { full = "Advanced", tiny = "A", color = {0.30, 0.70, 1.00} },
-    [3] = { full = "Waiting for patrol", tiny = "W", color = {1.00, 0.90, 0.30} },
+    [1] = { full = "莽冲",   tiny = "莽", color = {1.00, 0.65, 0.10} },
+    [2] = { full = "高级",   tiny = "高", color = {0.30, 0.70, 1.00} },
+    [3] = { full = "等待巡逻", tiny = "等", color = {1.00, 0.90, 0.30} },
 }
 
 -- Settings panel (Interface -> AddOns -> DungeonClear -> Settings). These are
@@ -144,7 +145,7 @@ frame:SetBackdropBorderColor(0.20, 0.22, 0.28, 1.0)
 -- Header Text
 local header = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 header:SetPoint("TOP", frame, "TOP", 0, -12)
-header:SetText("Dungeon Clear")
+header:SetText("地下城清理")
 header:SetTextColor(0.24, 0.60, 1.0) -- Premium blue
 
 -- Close Button
@@ -176,12 +177,12 @@ statusFrame:SetBackdropBorderColor(0.15, 0.17, 0.22, 0.8)
 -- Status fields
 local statusLabel = statusFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 statusLabel:SetPoint("TOPLEFT", statusFrame, "TOPLEFT", 10, -10)
-statusLabel:SetText("Mode Status:")
+statusLabel:SetText("模式状态：")
 statusLabel:SetTextColor(0.8, 0.8, 0.8)
 
 local statusVal = statusFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 statusVal:SetPoint("LEFT", statusLabel, "RIGHT", 5, 0)
-statusVal:SetText("OFF")
+statusVal:SetText("关闭")
 statusVal:SetTextColor(0.5, 0.5, 0.5)
 
 -- Pull-mode readout. Mirrors the segmented control's active state and, in
@@ -189,17 +190,17 @@ statusVal:SetTextColor(0.5, 0.5, 0.5)
 -- crammed into the Dyn segment label, where it overflowed the button.
 local pullModeLabel = statusFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 pullModeLabel:SetPoint("TOPLEFT", statusLabel, "BOTTOMLEFT", 0, -8)
-pullModeLabel:SetText("Pull Mode:")
+pullModeLabel:SetText("拉怪模式：")
 pullModeLabel:SetTextColor(0.8, 0.8, 0.8)
 
 local pullModeVal = statusFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 pullModeVal:SetPoint("LEFT", pullModeLabel, "RIGHT", 5, 0)
-pullModeVal:SetText("Dynamic")
+pullModeVal:SetText("动态")
 pullModeVal:SetTextColor(0.6, 0.6, 0.6)
 
 local stateLabel = statusFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 stateLabel:SetPoint("TOPLEFT", pullModeLabel, "BOTTOMLEFT", 0, -8)
-stateLabel:SetText("Current State:")
+stateLabel:SetText("当前状态：")
 stateLabel:SetTextColor(0.8, 0.8, 0.8)
 
 local stateVal = statusFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
@@ -210,7 +211,7 @@ local stateVal = statusFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight
 stateVal:SetPoint("TOPLEFT", stateLabel, "TOPRIGHT", 5, 0)
 stateVal:SetWidth(196)
 stateVal:SetJustifyH("LEFT")
-stateVal:SetText("Inactive")
+stateVal:SetText("未激活")
 stateVal:SetTextColor(0.6, 0.6, 0.6)
 
 -- Free-text detail sub-line under the state (who we're waiting on, what we're
@@ -233,7 +234,7 @@ local targetLabel = statusFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal
 -- with margin; everything below shifts down the same 10px (see the matching
 -- statusFrame / frame height bumps) so no new overlap is introduced.
 targetLabel:SetPoint("TOPLEFT", stateLabel, "BOTTOMLEFT", 0, -44)
-targetLabel:SetText("Next Boss:")
+targetLabel:SetText("下一个首领：")
 targetLabel:SetTextColor(0.8, 0.8, 0.8)
 
 local targetVal = statusFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
@@ -245,12 +246,12 @@ targetVal:SetPoint("LEFT", targetLabel, "RIGHT", 5, 0)
 targetVal:SetWidth(210)
 targetVal:SetJustifyH("LEFT")
 targetVal:SetWordWrap(false)
-targetVal:SetText("None")
+targetVal:SetText("无")
 targetVal:SetTextColor(1, 1, 1)
 
 local stallLabel = statusFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 stallLabel:SetPoint("TOPLEFT", targetLabel, "BOTTOMLEFT", 0, -8)
-stallLabel:SetText("Warning:")
+stallLabel:SetText("警告：")
 stallLabel:SetTextColor(0.9, 0.2, 0.2)
 stallLabel:Hide()
 
@@ -323,7 +324,7 @@ tinyIndicator:Hide()
 
 local tinyText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 tinyText:SetPoint("LEFT", tinyIndicator, "RIGHT", 6, 0)
-tinyText:SetText("Off")
+tinyText:SetText("关闭")
 tinyText:Hide()
 
 -- Click target over the tiny circle; created after SendDcCommand is defined so
@@ -332,21 +333,21 @@ local tinyToggle
 
 -- Compact state -> (label, color) for the tiny line
 local function FormatStateTiny(state)
-    if state == "paused" then return "Paused", {0.9, 0.8, 0.2}
-    elseif state == "pulling" then return "Pulling to Camp", {0.3, 0.8, 1}
-    elseif state == "moving" then return "Advancing", {0.2, 0.7, 1}
-    elseif state == "pathing" then return "Plotting Route", {0.4, 0.7, 0.9}
-    elseif state == "pursuing" then return "Closing In", {0.3, 0.8, 1}
-    elseif state == "recovering" then return "Repathing", {0.9, 0.6, 0.2}
-    elseif state == "resting" then return "Resting", {0.9, 0.8, 0.2}
-    elseif state == "looting" then return "Looting", {0.9, 0.6, 0.1}
-    elseif state == "door_blocked" then return "Door Blocked", {0.9, 0.2, 0.2}
-    elseif state == "stalled" then return "Blocked", {0.9, 0.2, 0.2}
-    elseif state == "fighting_trash" then return "Clearing Trash", {0.8, 0.3, 0.9}
-    elseif state == "fighting_boss" then return "Boss Fight", {1, 0.2, 0.2}
-    elseif state == "idle" then return "Idle", {0.6, 0.6, 0.6}
+    if state == "paused" then return "已暂停", {0.9, 0.8, 0.2}
+    elseif state == "pulling" then return "拉回营地", {0.3, 0.8, 1}
+    elseif state == "moving" then return "推进中", {0.2, 0.7, 1}
+    elseif state == "pathing" then return "规划路线", {0.4, 0.7, 0.9}
+    elseif state == "pursuing" then return "接近中", {0.3, 0.8, 1}
+    elseif state == "recovering" then return "重新寻路", {0.9, 0.6, 0.2}
+    elseif state == "resting" then return "休整中", {0.9, 0.8, 0.2}
+    elseif state == "looting" then return "拾取中", {0.9, 0.6, 0.1}
+    elseif state == "door_blocked" then return "门被挡住", {0.9, 0.2, 0.2}
+    elseif state == "stalled" then return "受阻", {0.9, 0.2, 0.2}
+    elseif state == "fighting_trash" then return "清小怪", {0.8, 0.3, 0.9}
+    elseif state == "fighting_boss" then return "首领战", {1, 0.2, 0.2}
+    elseif state == "idle" then return "待机", {0.6, 0.6, 0.6}
     end
-    return "Active", {0.8, 0.8, 0.8}
+    return "活动", {0.8, 0.8, 0.8}
 end
 
 local function RgbToHex(c)
@@ -371,12 +372,12 @@ local function UpdateStatusUI(enabled, targetName, state, stallReason, detail, p
     if not enabled or enabled == "0" then
         isDCOn = false
         isPaused = false
-        statusVal:SetText("OFF")
+        statusVal:SetText("关闭")
         statusVal:SetTextColor(0.5, 0.5, 0.5)
-        stateVal:SetText("Inactive")
+        stateVal:SetText("未激活")
         stateVal:SetTextColor(0.6, 0.6, 0.6)
         detailVal:SetText("")
-        targetVal:SetText("None")
+        targetVal:SetText("无")
         targetVal:SetTextColor(0.6, 0.6, 0.6)
         stallLabel:Hide()
         stallVal:Hide()
@@ -384,54 +385,54 @@ local function UpdateStatusUI(enabled, targetName, state, stallReason, detail, p
     else
         isDCOn = true
         if isPaused then
-            statusVal:SetText("PAUSED")
+            statusVal:SetText("已暂停")
             statusVal:SetTextColor(0.9, 0.8, 0.2) -- Yellow
         else
-            statusVal:SetText("ON")
+            statusVal:SetText("开启")
             statusVal:SetTextColor(0.1, 0.9, 0.1) -- Green
         end
 
         -- Format state human readable
-        local stateText = state or "Idle"
+        local stateText = state or "待机"
         local stateColor = {0.8, 0.8, 0.8}
         if state == "paused" then
-            stateText = "Paused"
+            stateText = "已暂停"
             stateColor = {0.9, 0.8, 0.2} -- Yellow
         elseif state == "pulling" then
-            stateText = "Advanced Pull"
+            stateText = "高级拉怪"
             stateColor = {0.3, 0.8, 1} -- Light blue
         elseif state == "moving" then
-            stateText = "Advancing"
+            stateText = "推进中"
             stateColor = {0.2, 0.7, 1} -- Light blue
         elseif state == "pathing" then
-            stateText = "Plotting Route"
+            stateText = "规划路线"
             stateColor = {0.4, 0.7, 0.9} -- Blue
         elseif state == "pursuing" then
-            stateText = "Closing on Boss"
+            stateText = "逼近首领"
             stateColor = {0.3, 0.8, 1} -- Light blue
         elseif state == "recovering" then
-            stateText = "Recovering / Repathing"
+            stateText = "恢复 / 重新寻路"
             stateColor = {0.9, 0.6, 0.2} -- Amber
         elseif state == "resting" then
-            stateText = "Party Recovering / Resting"
+            stateText = "队伍恢复 / 休整"
             stateColor = {0.9, 0.8, 0.2} -- Yellow
         elseif state == "looting" then
-            stateText = "Collecting Loot"
+            stateText = "收集战利品"
             stateColor = {0.9, 0.6, 0.1} -- Orange
         elseif state == "door_blocked" then
-            stateText = "Blocked by Door"
+            stateText = "被门挡住"
             stateColor = {0.9, 0.2, 0.2} -- Red
         elseif state == "stalled" then
-            stateText = "Route Blocked"
+            stateText = "路线受阻"
             stateColor = {0.9, 0.2, 0.2} -- Red
         elseif state == "fighting_trash" then
-            stateText = "Clearing Path (Trash)"
+            stateText = "清路（小怪）"
             stateColor = {0.8, 0.3, 0.9} -- Purple
         elseif state == "fighting_boss" then
-            stateText = "Engaging Boss!"
+            stateText = "交战首领！"
             stateColor = {1, 0.1, 0.1} -- Crimson
         elseif state == "idle" then
-            stateText = "Idle / Waiting"
+            stateText = "待机 / 等待"
             stateColor = {0.6, 0.6, 0.6}
         end
         stateVal:SetText(stateText)
@@ -441,13 +442,14 @@ local function UpdateStatusUI(enabled, targetName, state, stallReason, detail, p
             -- `detail` carries WHY we're paused (a manual hold, or a door the
             -- tank can't open) and can be a long sentence, so surface it on the
             -- wrapping sub-line rather than the fixed-width state label above.
-            local reason = (detail and detail ~= "") and detail or "holding position"
-            detailVal:SetText("Holding (" .. reason .. "); boss progress saved.")
+            local reason = (detail and detail ~= "") and detail or "原地待命"
+            detailVal:SetText("待命（" .. reason .. "）；首领进度已保存。")
         else
             detailVal:SetText(detail or "")
         end
 
-        targetVal:SetText(targetName or "None")
+        -- 服务端仍会送英文 "None"，这里翻译为显示值；下方 tiny 行的判断仍按原值比较
+        targetVal:SetText((targetName and targetName ~= "" and targetName ~= "None") and targetName or "无")
         targetVal:SetTextColor(1, 0.82, 0) -- Gold
 
         if stallReason and stallReason ~= "" then
@@ -466,7 +468,7 @@ local function UpdateStatusUI(enabled, targetName, state, stallReason, detail, p
     -- Update the tiny single-line display: circle + status + boss
     if not enabled or enabled == "0" then
         tinyIndicator:SetTexture("Interface\\FriendsFrame\\StatusIcon-Offline")
-        tinyText:SetText("|cff999999Off|r")
+        tinyText:SetText("|cff999999关闭|r")
     else
         if isPaused then
             -- Yellow "away" dot signals a held/paused clear.
@@ -501,10 +503,10 @@ local function UpdateStatusUI(enabled, targetName, state, stallReason, detail, p
     -- Pause/Resume button: label reflects current state; disabled when DC is off.
     if pauseBtn then
         if not isDCOn then
-            pauseBtn:SetText("Pause")
+            pauseBtn:SetText("暂停")
             pauseBtn:Disable()
         else
-            pauseBtn:SetText(isPaused and "Resume" or "Pause")
+            pauseBtn:SetText(isPaused and "继续" or "暂停")
             pauseBtn:Enable()
         end
     end
@@ -555,7 +557,7 @@ local function SendDcCommand(subCmd, param, silent)
     if me and me ~= "" then
         SendAddonMessage("DC", payload, "WHISPER", me)
     elseif not silent and param ~= "addon" then
-        DEFAULT_CHAT_FRAME:AddMessage("|cffff3333DungeonClear: cannot send bot commands right now.|r")
+        DEFAULT_CHAT_FRAME:AddMessage("|cffff3333地下城清理：当前无法发送机器人命令。|r")
     end
 end
 
@@ -564,7 +566,7 @@ end
 local onBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 onBtn:SetSize(68, 24)
 onBtn:SetPoint("TOPLEFT", statusFrame, "BOTTOMLEFT", 0, -8)
-onBtn:SetText("On")
+onBtn:SetText("开启")
 onBtn:SetScript("OnClick", function()
     SendDcCommand("on")
     -- The leader tank is elected on "on"; push the player's overrides right
@@ -575,13 +577,13 @@ end)
 local offBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 offBtn:SetSize(68, 24)
 offBtn:SetPoint("LEFT", onBtn, "RIGHT", 11, 0)
-offBtn:SetText("Off")
+offBtn:SetText("关闭")
 offBtn:SetScript("OnClick", function() SendDcCommand("off") end)
 
 local skipBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 skipBtn:SetSize(68, 24)
 skipBtn:SetPoint("LEFT", offBtn, "RIGHT", 11, 0)
-skipBtn:SetText("Skip")
+skipBtn:SetText("跳过")
 skipBtn:SetScript("OnClick", function() SendDcCommand("skip") end)
 
 -- Pause/Resume toggle. Label + enabled state are driven by UpdateStatusUI.
@@ -593,7 +595,7 @@ skipBtn:SetScript("OnClick", function() SendDcCommand("skip") end)
 pauseBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 pauseBtn:SetSize(68, 24)
 pauseBtn:SetPoint("LEFT", skipBtn, "RIGHT", 11, 0)
-pauseBtn:SetText("Pause")
+pauseBtn:SetText("暂停")
 pauseBtn:SetScript("OnClick", function()
     SendDcCommand("pause", isPaused and "resume" or "pause")
 end)
@@ -605,7 +607,7 @@ end)
 -- is wired through but is a no-op stub server-side for now.
 pullLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 pullLabel:SetPoint("TOPLEFT", onBtn, "BOTTOMLEFT", 2, -14)
-pullLabel:SetText("Pull:")
+pullLabel:SetText("拉怪：")
 pullLabel:SetTextColor(0.8, 0.8, 0.8)
 
 local PULL_SEG_W = 86
@@ -636,7 +638,7 @@ spectateBtn:SetSize(100, 24)
 -- The pull-row segments span -8..-32 below onBtn (24px buttons centered on
 -- the label); start this row at -40 to keep the 8px row gap.
 spectateBtn:SetPoint("TOPLEFT", onBtn, "BOTTOMLEFT", 0, -40)
-spectateBtn:SetText("Spectate")
+spectateBtn:SetText("观战")
 -- Left-click = the free-flying camera. Right-click (or shift-click) = follow
 -- cam: the view rides the run's tank instead of flying free, which is what you
 -- want when watching rather than exploring. Both are the same server toggle
@@ -681,15 +683,15 @@ end
 spectateBtn:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     if not spectateAvailable then
-        GameTooltip:SetText("Spectator mode disabled", 1, 1, 1)
-        GameTooltip:AddLine("This server has turned off the spectator camera.",
+        GameTooltip:SetText("观战模式已禁用", 1, 1, 1)
+        GameTooltip:AddLine("本服务器已关闭观战视角。",
             0.8, 0.8, 0.8, true)
         GameTooltip:Show()
         return
     end
-    GameTooltip:SetText("Spectate", 1, 1, 1)
-    GameTooltip:AddLine("Left-click: free-flying camera.", 0.8, 0.8, 0.8, true)
-    GameTooltip:AddLine("Right-click: follow cam \226\128\148 your view rides the tank.",
+    GameTooltip:SetText("观战", 1, 1, 1)
+    GameTooltip:AddLine("左键：自由飞行视角。", 0.8, 0.8, 0.8, true)
+    GameTooltip:AddLine("右键：跟随视角 \226\128\148 镜头跟随坦克。",
         0.8, 0.8, 0.8, true)
     GameTooltip:Show()
 end)
@@ -710,8 +712,8 @@ spectatePrevBtn:SetScript("OnClick", function()
 end)
 spectatePrevBtn:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip:SetText("Previous bot", 1, 1, 1)
-    GameTooltip:AddLine("Move the camera to the previous bot in the instance.",
+    GameTooltip:SetText("上一个机器人", 1, 1, 1)
+    GameTooltip:AddLine("将视角切到副本中的上一个机器人。",
         0.8, 0.8, 0.8, true)
     GameTooltip:Show()
 end)
@@ -727,9 +729,9 @@ spectateNextBtn:SetScript("OnClick", function()
 end)
 spectateNextBtn:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip:SetText("Next bot", 1, 1, 1)
-    GameTooltip:AddLine("Move the camera to the next bot in the instance. " ..
-        "Starts the follow cam if it isn't running.", 0.8, 0.8, 0.8, true)
+    GameTooltip:SetText("下一个机器人", 1, 1, 1)
+    GameTooltip:AddLine("将视角切到副本中的下一个机器人。" ..
+        "若跟随视角未开启，则一并开启。", 0.8, 0.8, 0.8, true)
     GameTooltip:Show()
 end)
 spectateNextBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -744,7 +746,7 @@ spectateNextBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 spectateResetBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 spectateResetBtn:SetSize(110, 24)
 spectateResetBtn:SetPoint("TOPRIGHT", pauseBtn, "BOTTOMRIGHT", 0, -40)
-spectateResetBtn:SetText("Reset Camera")
+spectateResetBtn:SetText("重置视角")
 
 -- Greyed out whenever no camera is running, so the button can only ever end one.
 UpdateResetBtnState = function()
@@ -796,9 +798,9 @@ end)
 
 spectateResetBtn:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip:SetText("Reset Camera", 1, 1, 1)
-    GameTooltip:AddLine("Ends the spectator camera and hands control of your " ..
-        "own character back to you.", 0.8, 0.8, 0.8, true)
+    GameTooltip:SetText("重置视角", 1, 1, 1)
+    GameTooltip:AddLine("结束观战视角，把你自己角色的控制权交还给你。",
+        0.8, 0.8, 0.8, true)
     GameTooltip:Show()
 end)
 spectateResetBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -829,13 +831,13 @@ end)
 tinyToggle:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_TOP")
     if not isDCOn then
-        GameTooltip:AddLine("Dungeon Clear")
-        GameTooltip:AddLine("Left-click to start the clear", 0.8, 0.8, 0.8, true)
+        GameTooltip:AddLine("地下城清理")
+        GameTooltip:AddLine("左键开始清理", 0.8, 0.8, 0.8, true)
     else
-        GameTooltip:AddLine(isPaused and "Paused" or "Clearing")
-        GameTooltip:AddLine(isPaused and "Left-click to resume" or "Left-click to pause", 0.8, 0.8, 0.8, true)
+        GameTooltip:AddLine(isPaused and "已暂停" or "清理中")
+        GameTooltip:AddLine(isPaused and "左键继续" or "左键暂停", 0.8, 0.8, 0.8, true)
     end
-    GameTooltip:AddLine("Right-click to expand the window", 0.8, 0.8, 0.8, true)
+    GameTooltip:AddLine("右键展开窗口", 0.8, 0.8, 0.8, true)
     GameTooltip:Show()
 end)
 tinyToggle:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -880,8 +882,8 @@ tinyPullToggle:SetScript("OnClick", function(self, button)
 end)
 tinyPullToggle:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_TOP")
-    GameTooltip:AddLine("Pull Mode")
-    GameTooltip:AddLine("Click to cycle: Leeroy / Advanced / Dynamic", 0.8, 0.8, 0.8, true)
+    GameTooltip:AddLine("拉怪模式")
+    GameTooltip:AddLine("点击切换：莽冲 / 高级 / 动态", 0.8, 0.8, 0.8, true)
     GameTooltip:Show()
 end)
 tinyPullToggle:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -905,7 +907,7 @@ UpdatePullControls = function()
     if pullModeVal then
         local text = PullStates[pullSetting].seg
         if pullSetting == 2 then
-            text = "Dynamic" .. (verdict and (" (" .. verdict.full .. ")") or "")
+            text = "动态" .. (verdict and ("（" .. verdict.full .. "）") or "")
         end
         pullModeVal:SetText(text)
         if not isDCOn then
@@ -957,7 +959,7 @@ UpdatePullControls = function()
         local label = PullStates[pullSetting].seg
         local color = PullStates[pullSetting].color
         if verdict then
-            label = label .. ": " .. verdict.full
+            label = label .. "：" .. verdict.full
             color = verdict.color
         end
         local dim = isDCOn and 1.0 or 0.6
@@ -993,7 +995,7 @@ local listLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 -- Below the pull + spectate rows: onBtn bottom, minus the 8px gap + 24px
 -- segment row + 8px gap + 24px spectate row + 12px.
 listLabel:SetPoint("TOPLEFT", onBtn, "BOTTOMLEFT", 0, -76)
-listLabel:SetText("Dungeon Bosses")
+listLabel:SetText("地下城首领")
 listLabel:SetTextColor(0.24, 0.60, 1.0)
 
 -- Boss List Scroll Frame container
@@ -1081,7 +1083,7 @@ for i = 1, VISIBLE_ROWS do
     row.goBtn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
     row.goBtn:SetSize(46, 20)
     row.goBtn:SetPoint("RIGHT", row, "RIGHT", -6, 0)
-    row.goBtn:SetText("Go")
+    row.goBtn:SetText("前往")
 
     -- Hovering a row with a folded event shows the full note in a tooltip, so a
     -- name too long for the bottom band (which truncates) is still readable.
@@ -1160,7 +1162,7 @@ RedrawBossList = function()
         row.eventNoteFull = nil
         row.text:ClearAllPoints()
         row.text:SetPoint("LEFT", row, "LEFT", 8, 0)
-        row.text:SetText("Loading boss list...")
+        row.text:SetText("正在载入首领列表……")
         row.text:SetTextColor(0.6, 0.6, 0.6)
         row.sub:Hide()
         row.status:SetText("")
@@ -1228,20 +1230,21 @@ RedrawBossList = function()
             end
 
             -- Style status color
-            local statusLabelText = "Alive"
+            -- 注意：boss.status 的取值（dead/skipped/missing）是服务器协议关键字，禁止改动
+            local statusLabelText = "存活"
             local statusColor = {0.1, 0.9, 0.1}
             local showGo = true
 
             if boss.status == "dead" then
-                statusLabelText = "Dead"
+                statusLabelText = "已死亡"
                 statusColor = {0.6, 0.6, 0.6}
                 showGo = false
             elseif boss.status == "skipped" then
-                statusLabelText = "Skipped"
+                statusLabelText = "已跳过"
                 statusColor = {0.9, 0.7, 0.1}
                 showGo = true
             elseif boss.status == "missing" then
-                statusLabelText = "Missing"
+                statusLabelText = "缺失"
                 statusColor = {0.5, 0.5, 0.7}
                 showGo = true
             end
@@ -1283,7 +1286,7 @@ end
 local tinyBtn = CreateFrame("Button", "DungeonClearTinyButton", frame, "UIPanelButtonTemplate")
 tinyBtn:SetSize(40, 20)
 tinyBtn:SetPoint("RIGHT", closeBtn, "LEFT", 2, 0)
-tinyBtn:SetText("Tiny")
+tinyBtn:SetText("迷你")
 
 local toggleBossesBtn = CreateFrame("Button", "DungeonClearToggleBossesButton", frame)
 toggleBossesBtn:SetSize(24, 24)
@@ -1402,7 +1405,7 @@ UpdateLayout = function()
         header:Show()
         closeBtn:Show()
         tinyBtn:Show()
-        tinyBtn:SetText("Tiny")
+        tinyBtn:SetText("迷你")
         onBtn:Show()
         offBtn:Show()
         skipBtn:Show()
@@ -1635,7 +1638,7 @@ local function OnAddonMessage(prefix, message, channel, sender)
         -- (one-shot, since this flips isDCOn false) and say so once.
         if isDCOn then
             UpdateStatusUI("0", nil, "off", nil)
-            DEFAULT_CHAT_FRAME:AddMessage("|cffff3333[DC] Tank bot is no longer in the group \226\128\148 dungeon clear turned off.|r")
+            DEFAULT_CHAT_FRAME:AddMessage("|cffff3333[DC] 坦克机器人已不在队伍中 \226\128\148 地下城清理已关闭。|r")
         end
     end
 end
@@ -1758,12 +1761,12 @@ optionsPanel.name = "DungeonClear"
 
 local optTitle = optionsPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
 optTitle:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", 16, -16)
-optTitle:SetText("Dungeon Clear")
+optTitle:SetText("地下城清理")
 optTitle:SetTextColor(0.24, 0.60, 1.0) -- match the main window header
 
 local optSubtitle = optionsPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 optSubtitle:SetPoint("TOPLEFT", optTitle, "BOTTOMLEFT", 0, -4)
-optSubtitle:SetText("Autonomous dungeon-clearing companion for mod-dungeon-clear.")
+optSubtitle:SetText("mod-dungeon-clear 的自动地下城清理辅助插件。")
 optSubtitle:SetTextColor(0.6, 0.6, 0.6)
 
 local optOverview = optionsPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
@@ -1771,15 +1774,14 @@ optOverview:SetPoint("TOPLEFT", optSubtitle, "BOTTOMLEFT", 0, -14)
 optOverview:SetWidth(560)
 optOverview:SetJustifyH("LEFT")
 optOverview:SetText(
-    "A mod-playerbots tank bot walks your party from boss to boss, clearing trash and " ..
-    "pathing the route on its own. This addon is the front-end for that mode: it gives you " ..
-    "one-click On / Off / Skip / Pause-Resume control, a live status readout (what the bot " ..
-    "is doing and which boss it's heading for), and a boss list with a per-boss \"Go\" button. " ..
-    "You must be in a party that contains a tank bot \226\128\148 the addon only relays commands.")
+    "mod-playerbots 的坦克机器人会带着你的队伍从一个首领打到下一个首领，自动清理路上的小怪 " ..
+    "并自行规划路线。本插件是该模式的界面端：提供一个点击即可的 开启 / 关闭 / 跳过 / 暂停-继续 " ..
+    "控制、实时状态显示（机器人在做什么、正前往哪个首领），以及一份带每行“前往”按钮的首领列表。 " ..
+    "你必须身处包含坦克机器人的队伍中 \226\128\148 本插件只负责转发命令。")
 
 local optCmdHeader = optionsPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
 optCmdHeader:SetPoint("TOPLEFT", optOverview, "BOTTOMLEFT", 0, -18)
-optCmdHeader:SetText("Commands & Controls")
+optCmdHeader:SetText("命令与控制")
 optCmdHeader:SetTextColor(0.24, 0.60, 1.0)
 
 local optCmdList = optionsPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
@@ -1787,32 +1789,32 @@ optCmdList:SetPoint("TOPLEFT", optCmdHeader, "BOTTOMLEFT", 0, -8)
 optCmdList:SetWidth(560)
 optCmdList:SetJustifyH("LEFT")
 optCmdList:SetText(
-    "|cffffd100/dc|r  \226\128\148  Toggle the main window (always reopens in full mode).\n" ..
-    "|cffffd100On / Off|r  \226\128\148  Start or stop the autonomous clear.\n" ..
-    "|cffffd100Skip|r  \226\128\148  Skip the current boss / objective and move to the next.\n" ..
-    "|cffffd100Pause / Resume|r  \226\128\148  Hold the tank in place without ending the clear, then resume.\n" ..
-    "|cffffd100Pull: Off / On / Dynamic|r  \226\128\148  LOS pull-to-camp control. |cff33d94dOn|r: the tank runs " ..
-    "in to grab a pack and drags it back to where the party waits (passive) before everyone engages. " ..
-    "|cff4db3ffDynamic|r: the tank scans each upcoming pack and auto-picks \226\128\148 it |cffffa61aLeeroys|r a lone " ..
-    "pack (charges in) but uses the careful |cff4db3ffAdvanced|r pull when packs are bunched in a room. The live " ..
-    "choice shows on the Dyn control. " ..
-    "|cff8c8c8cOff|r: walk up and fight in place.\n" ..
-    "|cffffd100Spectate|r  \226\128\148  Left-click detaches you into a free-flying camera while your " ..
-    "character keeps running under bot AI. Right-click instead rides the tank (follow cam), handing off " ..
-    "if it dies. Click again (or |cffffd100.dc spectate|r) to return to your body.\n" ..
-    "|cffffd100< >|r (next to Spectate)  \226\128\148  Move the camera to any other bot in the instance, " ..
-    "tank or not \226\128\148 healer during a wipe, DPS during a burn. Also starts the follow cam if it " ..
-    "isn't running. |cffffd100.dc spectate next/prev/list|r, or " ..
-    "|cffffd100.dc spectate follow <name>|r to jump straight to one.\n" ..
-    "|cffffd100Go|r (per boss row)  \226\128\148  Send the tank straight to that boss (turns the clear on first).\n" ..
-    "|cffffd100Tiny|r  \226\128\148  Collapse the window to a single-line, movable readout.\n" ..
-    "|cffffd100Settings|r (sub-page)  \226\128\148  Override the server defaults (loot quality, rest %, " ..
-    "party spread, pull tuning, …) for your own runs. Saved per character and re-applied each run.")
+    "|cffffd100/dc|r  \226\128\148  切换主窗口显示（总是以完整模式重新打开）。\n" ..
+    "|cffffd100开启 / 关闭|r  \226\128\148  开始或停止自动清理。\n" ..
+    "|cffffd100跳过|r  \226\128\148  跳过当前首领 / 目标，前往下一个。\n" ..
+    "|cffffd100暂停 / 继续|r  \226\128\148  让坦克原地待命而不结束清理，之后再继续。\n" ..
+    "|cffffd100拉怪：关闭 / 开启 / 动态|r  \226\128\148  卡视野拉回营地控制。|cff33d94d开启|r：坦克冲进 " ..
+    "去抓一群怪，再拖回队伍等待的位置（被动状态），然后全队一起开打。 " ..
+    "|cff4db3ff动态|r：坦克会逐个评估前方的怪群并自动选择 \226\128\148 面对落单的怪群会 |cffffa61a莽冲|r " ..
+    "（直接冲上去），而当怪群挤在一个房间里时则采用谨慎的 |cff4db3ff高级|r 拉怪。实时的 " ..
+    "选择会显示在“动态”控件上。 " ..
+    "|cff8c8c8c关闭|r：直接走上去原地开打。\n" ..
+    "|cffffd100观战|r  \226\128\148  左键会让你脱离成自由飞行视角，同时你的 " ..
+    "角色继续由机器人 AI 操作。右键则改为跟随坦克（跟随视角），若坦克阵亡会自动交接。 " ..
+    "再次点击（或 |cffffd100.dc spectate|r）即可回到自己的身体。\n" ..
+    "|cffffd100< >|r（在“观战”旁边）  \226\128\148  把视角切到副本中的任意其他机器人， " ..
+    "不限坦克 \226\128\148 团灭时看治疗，爆发时看 DPS。若跟随视角未开启也会一并开启。 " ..
+    "也可用 |cffffd100.dc spectate next/prev/list|r，或 " ..
+    "|cffffd100.dc spectate follow <name>|r 直接跳到指定目标。\n" ..
+    "|cffffd100前往|r（每个首领行）  \226\128\148  直接派坦克前往该首领（会先开启清理）。\n" ..
+    "|cffffd100迷你|r  \226\128\148  把窗口折叠成单行、可移动的读数条。\n" ..
+    "|cffffd100设置|r（子页面）  \226\128\148  为你的清理覆盖服务器默认值（战利品品质、恢复百分比、 " ..
+    "队伍间距、拉怪微调，……）。按角色保存，每次清理重新应用。")
 
 local openBtn = CreateFrame("Button", nil, optionsPanel, "UIPanelButtonTemplate")
 openBtn:SetSize(160, 24)
 openBtn:SetPoint("TOPLEFT", optCmdList, "BOTTOMLEFT", 0, -20)
-openBtn:SetText("Open DungeonClear")
+openBtn:SetText("打开地下城清理")
 openBtn:SetScript("OnClick", function()
     -- Mirror the /dc (no-arg) open branch: always reopen in full (non-tiny) mode.
     DungeonClearDB.tinyMode = false
@@ -1836,34 +1838,34 @@ InterfaceOptions_AddCategory(optionsPanel)
 -- Friendly labels + tooltips. Optional decoration only: any key missing here
 -- still renders, falling back to the raw key as its label.
 local SettingMeta = {
-    PreventBotRelease    = { label = "Prevent Bot Release",
-                             desc = "Dead bots stay as a corpse to be resurrected instead of releasing to the graveyard." },
-    CombatRegroup        = { label = "Combat Regroup",
-                             desc = "Keep followers grouped on the tank during a fight, not just on the route — a healer that drifts out of line of sight closes back in." },
-    PartyMaxSpread       = { label = "Party Max Spread (yd)",
-                             desc = "How far the tank may lead the party before it holds to let everyone catch up." },
-    LootMinQuality       = { label = "Minimum Loot Quality",
-                             desc = "Skip corpses whose best item is below this rarity. Quest items always loot." },
-    IgnoreChests         = { label = "Ignore Chests",
-                             desc = "Don't stop for treasure chests or other world objects while clearing — only loot creature corpses." },
-    RestHealthPct        = { label = "Rest Health %",
-                             desc = "Health the party eats up to between pulls, overriding the server's AiPlayerbot.AlmostFullHealth for this run. 0 = use the server default." },
-    RestManaPct          = { label = "Rest Mana %",
-                             desc = "Mana the party drinks up to between pulls, overriding the server's AiPlayerbot.HighMana for this run. 0 = use the server default. Ignored while Smart Rest is on." },
-    SmartRest            = { label = "Smart Rest",
-                             desc = "Push without stopping to eat or drink until someone falls below a trigger, then the whole party rests to FULL health and mana. Off = classic rest-to-target behavior (Rest Health/Mana % above)." },
-    SmartRestHealthPct   = { label = "Smart Rest: Health Trigger %",
-                             desc = "Any member below this health stops the party for a full rest. 0 disables the health trigger." },
-    SmartRestDpsManaPct  = { label = "Smart Rest: DPS/Tank Mana Trigger %",
-                             desc = "A DPS or tank mana user below this stops the party for a full rest. 0 disables." },
-    SmartRestHealerManaPct = { label = "Smart Rest: Healer Mana Trigger %",
-                             desc = "A healer below this mana stops the party for a full rest. 0 disables." },
-    WaitAtBoss           = { label = "Wait at Boss",
-                             desc = "Pause the run right before every boss pull and wait for you — hit Resume (or the tiny-mode dot) when your party is ready. Each boss waits once per run." },
-    PullDynamicMaxLeeroyMobs = { label = "Desired maximum mobs per pull",
-                             desc = "Dynamic pull only. The party's comfortable simultaneous-mob ceiling: the tank Leeroys a pack at or under this estimated aggro count, and pulls one above it back to camp." },
-    PullDynamicPartyLag  = { label = "Pull: Party Lag (yd)",
-                             desc = "Dynamic pull only. How far back the party trails while the tank scouts the next pack, so it reaches aggro range alone to decide Leeroy vs pull." },
+    PreventBotRelease    = { label = "阻止机器人释放尸体",
+                             desc = "阵亡的机器人保持尸体状态等待复活，而不是释放回墓地。" },
+    CombatRegroup        = { label = "战斗中重新集合",
+                             desc = "战斗中让队友保持聚在坦克身边，而不只是在路线上排队 —— 走失到视线外的治疗会自动靠回来。" },
+    PartyMaxSpread       = { label = "队伍最大间距（码）",
+                             desc = "坦克最多可以带着队伍拉开多远；超过就停下来等所有人跟上。" },
+    LootMinQuality       = { label = "最低拾取品质",
+                             desc = "跳过最佳物品低于该品质的尸体。任务物品始终拾取。" },
+    IgnoreChests         = { label = "忽略宝箱",
+                             desc = "清理途中不为宝箱或其他世界物件停下 —— 只拾取生物尸体。" },
+    RestHealthPct        = { label = "恢复生命 %",
+                             desc = "每次拉怪之间，队伍进食恢复到的生命值；覆盖本次清理的服务器设置 AiPlayerbot.AlmostFullHealth。0 = 使用服务器默认值。" },
+    RestManaPct          = { label = "恢复法力 %",
+                             desc = "每次拉怪之间，队伍饮水恢复到的法力值；覆盖本次清理的服务器设置 AiPlayerbot.HighMana。0 = 使用服务器默认值。开启智能恢复时此项被忽略。" },
+    SmartRest            = { label = "智能恢复",
+                             desc = "一路推进，不停下来吃喝，直到有人跌破触发值，然后全队恢复到满生命满法力。关闭 = 经典的恢复到目标值行为（即上方的恢复生命/法力 %）。" },
+    SmartRestHealthPct   = { label = "智能恢复：生命触发 %",
+                             desc = "任何成员生命低于该值就让队伍停下做一次完整恢复。0 表示禁用生命触发。" },
+    SmartRestDpsManaPct  = { label = "智能恢复：DPS/坦克法力触发 %",
+                             desc = "DPS 或坦克类法力职业低于该值就让队伍停下做一次完整恢复。0 表示禁用。" },
+    SmartRestHealerManaPct = { label = "智能恢复：治疗法力触发 %",
+                             desc = "治疗职业低于该法力值就让队伍停下做一次完整恢复。0 表示禁用。" },
+    WaitAtBoss           = { label = "首领前等待",
+                             desc = "每次开首领之前暂停，等你准备好 —— 队伍就绪后点“继续”（或迷你模式的圆点）。每个首领每次清理只等一次。" },
+    PullDynamicMaxLeeroyMobs = { label = "每次拉怪的期望怪物上限",
+                             desc = "仅动态拉怪。队伍能舒适同时应对的怪物上限：估算仇恨数量不超过该值就直接莽冲，超过则拉回营地。" },
+    PullDynamicPartyLag  = { label = "拉怪：队伍滞后（码）",
+                             desc = "仅动态拉怪。坦克去侦查下一个怪群时队伍落后的距离，让坦克独自进入仇恨范围来判断莽冲还是拉回。" },
 }
 
 -- The only settings exposed in the player-facing panel. The server streams many
@@ -1893,13 +1895,13 @@ local VisibleSettings = {
 -- dropdown). Mirrors the client's ITEM_QUALITY_COLORS / ITEM_QUALITYn_DESC but
 -- hardcoded so the colored entries render identically regardless of locale.
 local QualityInfo = {
-    [0] = { name = "Poor",      hex = "ff9d9d9d" },
-    [1] = { name = "Common",    hex = "ffffffff" },
-    [2] = { name = "Uncommon",  hex = "ff1eff00" },
-    [3] = { name = "Rare",      hex = "ff0070dd" },
-    [4] = { name = "Epic",      hex = "ffa335ee" },
-    [5] = { name = "Legendary", hex = "ffff8000" },
-    [6] = { name = "Artifact",  hex = "ffe6cc80" },
+    [0] = { name = "粗糙", hex = "ff9d9d9d" },
+    [1] = { name = "普通", hex = "ffffffff" },
+    [2] = { name = "优秀", hex = "ff1eff00" },
+    [3] = { name = "精良", hex = "ff0070dd" },
+    [4] = { name = "史诗", hex = "ffa335ee" },
+    [5] = { name = "传说", hex = "ffff8000" },
+    [6] = { name = "神器", hex = "ffe6cc80" },
 }
 local function QualityText(v)
     local info = QualityInfo[v] or QualityInfo[0]
@@ -1953,18 +1955,18 @@ local function RoundVal(stype, v)
 end
 
 local function FmtVal(stype, v)
-    if stype == DCT_BOOL then return (v ~= 0) and "On" or "Off" end
+    if stype == DCT_BOOL then return (v ~= 0) and "开" or "关" end
     if stype == DCT_FLOAT then return string.format("%.1f", v) end
     return tostring(math.floor(v + 0.5))
 end
 
 local settingsPanel = CreateFrame("Frame", "DungeonClearSettingsPanel", UIParent)
-settingsPanel.name = "Settings"
+settingsPanel.name = "设置"
 settingsPanel.parent = optionsPanel.name  -- nests under "DungeonClear"
 
 local setTitle = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
 setTitle:SetPoint("TOPLEFT", settingsPanel, "TOPLEFT", 16, -16)
-setTitle:SetText("Dungeon Clear - Settings")
+setTitle:SetText("地下城清理 - 设置")
 setTitle:SetTextColor(0.24, 0.60, 1.0)
 
 local setIntro = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
@@ -1972,16 +1974,15 @@ setIntro:SetPoint("TOPLEFT", setTitle, "BOTTOMLEFT", 0, -4)
 setIntro:SetWidth(580)
 setIntro:SetJustifyH("LEFT")
 setIntro:SetText(
-    "These override the server defaults for your own dungeon runs. Changes apply " ..
-    "immediately and are saved per character. You must be in a party with a tank " ..
-    "bot for them to take effect; \"Default\" reverts a setting to the server value.")
+    "这些设置会为你的地下城清理覆盖服务器默认值。改动立即生效并按角色保存。" ..
+    "你必须身处包含坦克机器人的队伍中才会起作用；“默认”会把某一项还原为服务器值。")
 setIntro:SetTextColor(0.6, 0.6, 0.6)
 
 -- Reset-everything-to-server-default button.
 local resetAllBtn = CreateFrame("Button", nil, settingsPanel, "UIPanelButtonTemplate")
 resetAllBtn:SetSize(150, 22)
 resetAllBtn:SetPoint("TOPLEFT", setIntro, "BOTTOMLEFT", 0, -10)
-resetAllBtn:SetText("Reset All to Default")
+resetAllBtn:SetText("全部恢复默认")
 resetAllBtn:SetScript("OnClick", function()
     DungeonClearDB.settings = {}
     SendDcCommand("reset", "", true)  -- empty key = clear the whole run
@@ -2063,7 +2064,7 @@ local function CreateSettingRow(key, stype)
     row.defBtn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
     row.defBtn:SetSize(64, 18)
     row.defBtn:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, -2)
-    row.defBtn:SetText("Default")
+    row.defBtn:SetText("默认")
     row.defBtn:SetScript("OnClick", function()
         DungeonClearDB.settings[key] = nil
         SendDcCommand("reset", key, true)
@@ -2311,9 +2312,9 @@ end)
 
 minimapButton:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-    GameTooltip:AddLine("Dungeon Clear")
-    GameTooltip:AddLine("Left-click to toggle the window.", 1, 1, 1)
-    GameTooltip:AddLine("Drag to reposition this button.", 1, 1, 1)
+    GameTooltip:AddLine("地下城清理")
+    GameTooltip:AddLine("左键切换窗口显示。", 1, 1, 1)
+    GameTooltip:AddLine("拖动可重新放置此按钮。", 1, 1, 1)
     GameTooltip:Show()
 end)
 minimapButton:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -2355,4 +2356,4 @@ SlashCmdList["DUNGEONCLEAR"] = function(msg)
 end
 
 -- Print loaded notice
-DEFAULT_CHAT_FRAME:AddMessage("|cff3da6ffDungeonClear Addon v3.1 loaded.|r Type /dc to toggle window, or see Interface > AddOns > DungeonClear.")
+DEFAULT_CHAT_FRAME:AddMessage("|cff3da6ff地下城清理插件 v3.1 已载入。|r 输入 /dc 切换窗口，或见 界面 > 插件 > DungeonClear。")

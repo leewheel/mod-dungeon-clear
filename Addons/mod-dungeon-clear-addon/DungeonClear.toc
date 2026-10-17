@@ -1,6 +1,6 @@
 ## Interface: 30300
-## Title: DungeonClear
-## Notes: Autonomous dungeon-clearing companion for mod-dungeon-clear.
+## Title: 地下城清理
+## Notes: mod-dungeon-clear 的自动地下城清理辅助插件。
 ## Author: Jared
 ## Version: 3.6
 ## SavedVariables: DungeonClearDB
